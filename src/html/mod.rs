@@ -15,6 +15,7 @@ use tendril::TendrilSink;
 
 use crate::selector::Selector;
 use crate::{ElementRef, Node};
+use crate::html::form::Form;
 
 /// An HTML tree.
 ///
@@ -99,6 +100,13 @@ impl Html {
         }
     }
 
+    /// Returns an iterator over forms.
+    pub fn forms(&self) -> Vec<Form> {
+        self.select(&Selector::parse("form").unwrap())
+            .map(|form|Form::wrap(self.root_element(), form))
+            .collect()
+    }
+
     /// Returns the root `<html>` element.
     pub fn root_element(&self) -> ElementRef {
         let root_node = self
@@ -158,10 +166,10 @@ impl<'a, 'b> Iterator for Select<'a, 'b> {
             if let Some(element) = ElementRef::wrap(node) {
                 if element.parent().is_some()
                     && self.selector.matches_with_scope_and_cache(
-                        &element,
-                        None,
-                        &mut self.nth_index_cache,
-                    )
+                    &element,
+                    None,
+                    &mut self.nth_index_cache,
+                )
                 {
                     return Some(element);
                 }
@@ -183,10 +191,10 @@ impl<'a, 'b> DoubleEndedIterator for Select<'a, 'b> {
             if let Some(element) = ElementRef::wrap(node) {
                 if element.parent().is_some()
                     && self.selector.matches_with_scope_and_cache(
-                        &element,
-                        None,
-                        &mut self.nth_index_cache,
-                    )
+                    &element,
+                    None,
+                    &mut self.nth_index_cache,
+                )
                 {
                     return Some(element);
                 }
@@ -200,6 +208,7 @@ impl FusedIterator for Select<'_, '_> {}
 
 mod serializable;
 mod tree_sink;
+mod form;
 
 #[cfg(test)]
 mod tests {

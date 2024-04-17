@@ -115,6 +115,17 @@ impl<'a> ElementRef<'a> {
     pub fn descendent_elements(&self) -> impl Iterator<Item = ElementRef<'a>> {
         self.descendants().filter_map(ElementRef::wrap)
     }
+
+    pub fn is_child_of(&self, parent: &ElementRef) -> bool {
+        let mut maybe_parent = self.parent();
+        while let Some(current_parent) = maybe_parent {
+            if current_parent == **parent {
+                return true;
+            }
+            maybe_parent = current_parent.parent();
+        }
+        false
+    }
 }
 
 impl<'a> Deref for ElementRef<'a> {
@@ -226,5 +237,29 @@ mod tests {
         let element1 = fragment.select(&sel1).next().unwrap();
         let element2 = element1.select(&sel2).next().unwrap();
         assert_eq!(element2.inner_html(), "3");
+    }
+
+    #[test]
+    fn test_children(){
+        let html = r"
+            <form>
+                <input>1</input>
+            </form>
+            <button>
+                <span><b>2</b></span>
+                <b>3</b>
+            </button>
+        ";
+
+        let html = Html::parse_document(html);
+        let forms = html.forms();
+        let form = forms.get(0).unwrap();
+        let input_sel = Selector::parse("input").unwrap();
+        let input = html.select(&input_sel).next().unwrap();
+        let button_sel = Selector::parse("button").unwrap();
+        let button = html.select(&button_sel).next().unwrap();
+
+        assert!(input.is_child_of(form));
+        assert!(!button.is_child_of(form));
     }
 }

@@ -13,7 +13,7 @@ use html5ever::{Attribute, LocalName, QualName};
 use once_cell::unsync::OnceCell;
 
 /// An HTML node.
-// `Element` is usally the most common variant and hence boxing it
+// `Element` is usually the most common variant and hence boxing it
 // will most likely not improve performance overall.
 #[allow(variant_size_differences)]
 #[derive(Clone, PartialEq, Eq)]
